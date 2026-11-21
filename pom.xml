@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    POM agregador do repositório agenda-contatos-legado.
+
+    Não é pai dos projetos: só permite construir os dois de uma vez.
+      JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean package
+    gera:
+      agenda-backend/target/agenda-backend.war
+      agenda-frontend/target/agenda-frontend.war
+
+    Cada aplicação continua podendo ser construída sozinha, dentro da própria pasta.
+    Compatível com Maven 3.3.9.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>br.ufpi.agenda</groupId>
+    <artifactId>agenda-contatos-legado</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>Agenda de Contatos (legado) - backend e frontend</name>
+
+    <modules>
+        <module>agenda-backend</module>
+        <module>agenda-frontend</module>
+    </modules>
+</project>

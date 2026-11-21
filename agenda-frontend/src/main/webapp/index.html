@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agenda de Contatos</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='2' width='22' height='28' rx='3' fill='%232B5D86'/%3E%3Crect x='26' y='6' width='4' height='6' rx='1' fill='%23E3A92B'/%3E%3Crect x='26' y='14' width='4' height='6' rx='1' fill='%2378A9CF'/%3E%3C/svg%3E">
+
+    <!-- Bibliotecas locais (funcionam sem internet) -->
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="vendor/bootstrap-icons/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ============================ Barra superior ============================ -->
+<header class="topo">
+    <nav class="navbar navbar-expand bg-white border-bottom">
+        <div class="container-xl gap-3">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="./">
+                <span class="marca" aria-hidden="true"><i class="bi bi-journal-bookmark-fill"></i></span>
+                <span class="fw-bold d-none d-sm-inline">Agenda</span>
+            </a>
+
+            <form class="busca flex-grow-1" role="search" onsubmit="return false">
+                <label for="campoBusca" class="visually-hidden">Buscar contatos</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search" aria-hidden="true"></i></span>
+                    <input id="campoBusca" class="form-control border-start-0" type="search"
+                           placeholder="Buscar por nome, telefone ou e-mail" autocomplete="off">
+                    <span class="input-group-text bg-white d-none d-md-flex"><kbd>/</kbd></span>
+                </div>
+            </form>
+
+            <span id="statusApi" class="status-api d-none d-sm-inline-flex" tabindex="0"
+                  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Verificando a API…">
+                <span class="ponto" aria-hidden="true"></span><span class="rotulo">Verificando…</span>
+            </span>
+
+            <button id="btnNovo" class="btn btn-primary text-nowrap" type="button">
+                <i class="bi bi-person-plus-fill" aria-hidden="true"></i>
+                <span class="d-none d-md-inline ms-1">Novo contato</span>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<!-- ============================ Conteúdo ============================ -->
+<main class="container-xl py-4">
+    <div id="alertaApi" class="alert alert-danger d-none" role="alert"></div>
+
+    <div class="agenda">
+        <!-- Índice alfabético, como as abas de uma agenda de papel -->
+        <nav id="indice" class="indice" aria-label="Índice alfabético"></nav>
+
+        <section class="folhas" aria-labelledby="tituloLista">
+            <div class="d-flex align-items-baseline justify-content-between mb-3">
+                <h1 id="tituloLista" class="h4 mb-0">Contatos</h1>
+                <span id="contagem" class="text-body-secondary small" aria-live="polite"></span>
+            </div>
+
+            <div id="carregando" class="text-center py-5 text-body-secondary">
+                <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                Carregando contatos…
+            </div>
+
+            <div id="lista" aria-live="polite"></div>
+        </section>
+    </div>
+</main>
+
+<!-- ============================ Detalhes (painel lateral) ============================ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="painelDetalhes" aria-labelledby="detalhesNome">
+    <div class="offcanvas-header border-bottom">
+        <div class="d-flex align-items-center gap-3">
+            <span id="detalhesAvatar" class="avatar avatar-lg" aria-hidden="true"></span>
+            <h2 class="offcanvas-title h5 mb-0" id="detalhesNome"></h2>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+    </div>
+    <div class="offcanvas-body" id="detalhesCorpo"></div>
+    <div class="p-3 border-top d-flex gap-2">
+        <button id="detalhesEditar" class="btn btn-primary flex-grow-1" type="button">
+            <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+        </button>
+        <button id="detalhesExcluir" class="btn btn-outline-danger" type="button">
+            <i class="bi bi-trash" aria-hidden="true"></i> Excluir
+        </button>
+    </div>
+</div>
+
+<!-- ============================ Formulário (criar/editar) ============================ -->
+<div class="modal fade" id="modalForm" tabindex="-1" aria-labelledby="formTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+        <form id="formContato" class="modal-content" novalidate>
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="formTitulo">Novo contato</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="formErros" class="alert alert-danger d-none" role="alert"></div>
+
+                <div class="mb-4">
+                    <label for="campoNome" class="form-label fw-bold">Nome</label>
+                    <input id="campoNome" name="nome" class="form-control form-control-lg" maxlength="120" required autocomplete="off">
+                    <div class="invalid-feedback">Informe o nome (até 120 caracteres).</div>
+                </div>
+
+                <div class="row g-4">
+                    <fieldset class="col-md-6">
+                        <legend class="form-label fw-bold fs-6"><i class="bi bi-telephone" aria-hidden="true"></i> Telefones</legend>
+                        <div id="listaTelefones" class="vstack gap-2"></div>
+                        <button type="button" class="btn btn-link btn-sm px-0 mt-1" data-adicionar="telefone">
+                            <i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar telefone
+                        </button>
+                    </fieldset>
+                    <fieldset class="col-md-6">
+                        <legend class="form-label fw-bold fs-6"><i class="bi bi-envelope" aria-hidden="true"></i> E-mails</legend>
+                        <div id="listaEmails" class="vstack gap-2"></div>
+                        <button type="button" class="btn btn-link btn-sm px-0 mt-1" data-adicionar="email">
+                            <i class="bi bi-plus-circle" aria-hidden="true"></i> Adicionar e-mail
+                        </button>
+                    </fieldset>
+                </div>
+
+                <fieldset class="mt-4">
+                    <legend class="form-label fw-bold fs-6"><i class="bi bi-geo-alt" aria-hidden="true"></i> Endereço</legend>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="campoRua" class="form-label small">Rua e número</label>
+                            <input id="campoRua" class="form-control" maxlength="200">
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="campoCep" class="form-label small">CEP</label>
+                            <input id="campoCep" class="form-control" maxlength="20" inputmode="numeric">
+                        </div>
+                        <div class="col-sm-8">
+                            <label for="campoCidade" class="form-label small">Cidade</label>
+                            <input id="campoCidade" class="form-control" maxlength="100">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="campoEstado" class="form-label small">Estado</label>
+                            <input id="campoEstado" class="form-control" maxlength="60">
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="campoPais" class="form-label small">País</label>
+                            <input id="campoPais" class="form-control" maxlength="60" list="paises">
+                            <datalist id="paises"><option value="Brasil"><option value="Portugal"><option value="Argentina"><option value="Panamá"></datalist>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btnSalvar">
+                    <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true"></span>
+                    <span class="rotulo">Salvar contato</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================ Confirmação de exclusão ============================ -->
+<div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="excluirTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h2 class="modal-title h5" id="excluirTitulo">Excluir contato?</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0"><strong id="excluirNome"></strong> será removido da agenda, com todos os telefones e e-mails. Essa ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">
+                    <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true"></span>
+                    Excluir contato
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================ Avisos ============================ -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="avisos" aria-live="polite" aria-atomic="true"></div>
+
+<footer class="container-xl pb-4 small text-body-secondary">
+    API: <code id="urlApi"></code>
+</footer>
+
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

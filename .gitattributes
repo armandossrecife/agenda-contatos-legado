@@ -1,0 +1,17 @@
+# Fim de linha LF no repositório para todos os arquivos de texto
+* text=auto eol=lf
+
+# Scripts sempre com LF (rodam no Linux)
+*.sh   text eol=lf
+*.py   text eol=lf
+
+# Binários: sem conversão e sem diff textual
+*.png    binary
+*.jpg    binary
+*.woff   binary
+*.woff2  binary
+*.jar    binary
+*.war    binary
+
+# Arquivos minificados de terceiros: não mostrar diff linha a linha
+agenda-frontend/src/main/webapp/vendor/** -diff linguist-vendored

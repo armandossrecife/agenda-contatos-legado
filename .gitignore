@@ -1,0 +1,33 @@
+# ---------- Build (Maven) ----------
+target/
+
+# ---------- Eclipse (gerados pelo m2e ao importar) ----------
+.settings/
+.classpath
+.project
+.metadata/
+bin/
+
+# ---------- IntelliJ / VS Code ----------
+.idea/
+*.iml
+.vscode/
+
+# ---------- Sistema operacional ----------
+.DS_Store
+Thumbs.db
+*~
+
+# ---------- Logs e temporários ----------
+*.log
+*.tmp
+
+# ---------- Python (teste E2E do frontend) ----------
+__pycache__/
+*.pyc
+.venv/
+
+# ---------- Configuração local que NÃO deve ir para o repositório ----------
+# Para usar credenciais próprias sem alterar o db.properties versionado,
+# defina DB_URL, DB_USER e DB_PASSWORD no ambiente do Tomcat.
+*.local.properties

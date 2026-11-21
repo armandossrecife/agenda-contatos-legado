@@ -1,0 +1,184 @@
+/* =====================================================================
+   Agenda de Contatos - estilos próprios sobre o Bootstrap 5
+   A identidade visual vem da agenda de papel: abas alfabéticas na lateral
+   e folhas agrupadas por letra.
+   ===================================================================== */
+
+/* Fonte Atkinson Hyperlegible (local), desenhada para máxima legibilidade */
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal; font-weight: 400; font-display: swap;
+    src: url("../vendor/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal; font-weight: 400; font-display: swap;
+    src: url("../vendor/fonts/atkinson-hyperlegible-latin-ext-400-normal.woff2") format("woff2");
+    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal; font-weight: 700; font-display: swap;
+    src: url("../vendor/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    font-style: normal; font-weight: 700; font-display: swap;
+    src: url("../vendor/fonts/atkinson-hyperlegible-latin-ext-700-normal.woff2") format("woff2");
+    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------------------------------------------------------- tokens */
+:root {
+    --agenda-tinta: #1D2433;      /* texto principal */
+    --agenda-azul: #2B5D86;       /* cor primária: capa da agenda */
+    --agenda-azul-escuro: #214A6B;
+    --agenda-papel: #F2F4F7;      /* fundo */
+    --agenda-aba: #E3A92B;        /* aba ativa do índice */
+    --agenda-linha: #DDE2E9;
+
+    --bs-body-font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --bs-body-color: var(--agenda-tinta);
+    --bs-body-bg: var(--agenda-papel);
+    --bs-primary: var(--agenda-azul);
+    --bs-primary-rgb: 43, 93, 134;
+    --bs-link-color: var(--agenda-azul);
+    --bs-link-color-rgb: 43, 93, 134;
+    --bs-link-hover-color: var(--agenda-azul-escuro);
+    --bs-border-color: var(--agenda-linha);
+    --bs-focus-ring-color: rgba(43, 93, 134, .3);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--agenda-azul);
+    --bs-btn-border-color: var(--agenda-azul);
+    --bs-btn-hover-bg: var(--agenda-azul-escuro);
+    --bs-btn-hover-border-color: var(--agenda-azul-escuro);
+    --bs-btn-active-bg: #1A3C57;
+    --bs-btn-active-border-color: #1A3C57;
+    --bs-btn-disabled-bg: var(--agenda-azul);
+    --bs-btn-disabled-border-color: var(--agenda-azul);
+    --bs-btn-focus-shadow-rgb: 43, 93, 134;
+}
+/* Superfícies brancas sobre o fundo "papel" (o Bootstrap usa --bs-body-bg nelas) */
+.form-control, .form-select { background-color: #fff; }
+.list-group { --bs-list-group-bg: #fff; }
+.offcanvas, .modal-content { --bs-offcanvas-bg: #fff; --bs-modal-bg: #fff; }
+
+.form-control:focus, .form-select:focus {
+    border-color: #8DB0CC;
+    box-shadow: 0 0 0 .25rem var(--bs-focus-ring-color);
+}
+
+/* ---------------------------------------------------------- topo */
+.topo { position: sticky; top: 0; z-index: 1020; }
+.marca {
+    display: inline-grid; place-items: center;
+    width: 2rem; height: 2rem; border-radius: .5rem;
+    background: var(--agenda-azul); color: #fff; font-size: 1rem;
+}
+.busca { max-width: 36rem; }
+.busca kbd { background: #EEF1F5; color: #4A5568; border: 1px solid var(--agenda-linha); font-size: .75rem; }
+
+.status-api {
+    align-items: center; gap: .45rem;
+    font-size: .85rem; color: #4A5568; white-space: nowrap; cursor: default;
+}
+.status-api .ponto { width: .55rem; height: .55rem; border-radius: 50%; background: #A0AEC0; }
+.status-api.ok .ponto { background: #2F8F5B; }
+.status-api.erro .ponto { background: #C53030; }
+
+/* ---------------------------------------------------------- estrutura */
+.agenda { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+
+/* Índice alfabético: abas verticais presas à lateral */
+.indice {
+    position: sticky; top: 5.5rem;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.indice button {
+    border: 0; background: transparent;
+    font-weight: 700; font-size: .8rem; line-height: 1;
+    padding: .32rem 0; width: 100%;
+    color: var(--agenda-azul);
+    border-radius: 0 .4rem .4rem 0;
+    border-left: 3px solid transparent;
+}
+.indice button:hover:not(:disabled) { background: #E2E9F1; }
+.indice button:disabled { color: #B8C1CC; cursor: default; }
+.indice button.ativa { background: #fff; border-left-color: var(--agenda-aba); color: var(--agenda-tinta); }
+
+/* Grupos por letra */
+.grupo { margin-bottom: 1.75rem; scroll-margin-top: 5.5rem; }
+.grupo-letra {
+    font-size: 1.75rem; font-weight: 700; line-height: 1;
+    color: var(--agenda-azul);
+    margin: 0 0 .6rem;
+    display: flex; align-items: center; gap: .75rem;
+}
+.grupo-letra::after { content: ""; flex: 1; height: 1px; background: var(--agenda-linha); }
+
+/* Linhas de contato */
+.contato {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.2fr) 1.25rem;
+    gap: 1rem; align-items: center;
+    padding: .8rem 1rem;
+    text-align: left;
+}
+.contato .nome { font-weight: 700; }
+.min-w-0 { min-width: 0; }
+.contato .sub, .contato .col-info { font-size: .9rem; color: #4A5568; }
+.contato .col-info { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contato .seta { color: #A0AEC0; }
+.contato:hover .seta { color: var(--agenda-azul); }
+.contato mark { padding: 0 .1em; background: #FCEFC7; border-radius: 2px; }
+
+/* Avatar com iniciais */
+.avatar {
+    display: inline-grid; place-items: center; flex: none;
+    width: 2.75rem; height: 2.75rem; border-radius: 50%;
+    font-weight: 700; font-size: .95rem; color: #fff;
+    background: var(--cor, var(--agenda-azul));
+}
+.avatar-lg { width: 3.5rem; height: 3.5rem; font-size: 1.2rem; }
+
+/* Estados vazios */
+.vazio { text-align: center; padding: 3.5rem 1rem; background: #fff; border: 1px dashed #C9D2DD; border-radius: .75rem; }
+.vazio .bi { font-size: 2.25rem; color: #A0AEC0; }
+.vazio h2 { font-size: 1.15rem; margin: .75rem 0 .35rem; }
+
+/* Painel de detalhes */
+.detalhe-bloco + .detalhe-bloco { margin-top: 1.5rem; }
+.detalhe-bloco h3 { font-size: .95rem; font-weight: 700; color: #4A5568; margin-bottom: .5rem; }
+.detalhe-bloco ul { list-style: none; padding: 0; margin: 0; }
+.detalhe-bloco li { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .35rem 0; }
+.detalhe-bloco li + li { border-top: 1px solid #EEF1F5; }
+.detalhe-bloco .btn-copiar { --bs-btn-padding-y: .1rem; --bs-btn-padding-x: .4rem; }
+
+/* Formulário: listas dinâmicas */
+.item-lista .btn-remover { --bs-btn-color: #718096; }
+
+/* ---------------------------------------------------------- responsivo */
+@media (max-width: 991.98px) {
+    .contato { grid-template-columns: 2.75rem minmax(0, 1fr) minmax(0, 1fr) 1.25rem; }
+    .contato .col-email { display: none; }
+}
+@media (max-width: 767.98px) {
+    .agenda { grid-template-columns: 1fr; gap: 1rem; }
+    .indice {
+        position: static; flex-direction: row; overflow-x: auto;
+        gap: 0; padding-bottom: .25rem;
+    }
+    .indice button { width: auto; min-width: 2rem; padding: .5rem .35rem; border-left: 0; border-bottom: 3px solid transparent; border-radius: .4rem .4rem 0 0; }
+    .indice button.ativa { border-bottom-color: var(--agenda-aba); }
+    .contato { grid-template-columns: 2.75rem minmax(0, 1fr) 1.25rem; }
+    .contato .col-tel { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .modal.fade .modal-dialog, .offcanvas, .toast { transition: none !important; }
+}

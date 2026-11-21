@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Agenda de Contatos - backend REST
+
+    Ambiente alvo:
+      - Maven 3.3.9   (todos os plugins abaixo exigem no máximo Maven 3.1)
+      - JDK 8         (bytecode versão 52)
+      - Tomcat 8.5    (Servlet 3.1, pacote javax.servlet)
+      - MySQL 8.x     (driver Connector/J 8.4, autenticação caching_sha2_password)
+
+    Build no terminal (use o JDK 8 também para rodar o Maven 3.3.9):
+      JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean package
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>br.ufpi.agenda</groupId>
+    <artifactId>agenda-backend</artifactId>
+    <version>2.1.0</version>
+    <packaging>war</packaging>
+    <name>Agenda de Contatos - Backend (Java 8 / Tomcat 8.5 / MySQL 8)</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- Versões das dependências -->
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <mysql-connector.version>8.4.0</mysql-connector.version>
+        <gson.version>2.11.0</gson.version>
+        <!-- JUnit 5.8.x é a última linha testada em conjunto com o Surefire 2.22.2 -->
+        <junit.version>5.8.2</junit.version>
+    </properties>
+
+    <dependencies>
+        <!-- Servlet 3.1 (Tomcat 8.5). Fornecida pelo Tomcat: não vai para o WAR. -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--
+            Driver JDBC para MySQL 8 (também aceita 5.7 e 9.x). Roda em Java 8.
+            O protobuf-java só é usado pela X DevAPI (porta 33060); o JDBC clássico
+            não precisa dele, então é excluído para deixar o WAR menor.
+        -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql-connector.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- JSON (exige Java 7 ou superior) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+
+        <!-- Testes -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>agenda-backend</finalName>
+
+        <!--
+            Versões fixadas de todos os plugins usados no ciclo "package".
+            Sem isso, o Maven 3.3.9 usaria plugins de 2008-2014 (resources 2.6,
+            surefire 2.12, war 2.2), que não suportam JUnit 5.
+        -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- 2.22.x é a primeira linha com suporte nativo ao JUnit 5 e ainda aceita Maven 3.0+ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
