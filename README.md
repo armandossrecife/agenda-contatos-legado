@@ -55,6 +55,9 @@ agenda-contatos-legado/
 ├── .gitattributes                  fim de linha LF e arquivos binários
 ├── .github/
 │   └── pull_request_template.md    checklist preenchido em todo Pull Request
+├── scripts/
+│   ├── build.sh                    constrói as duas aplicações (gera os .war)
+│   └── deploy.sh                   implanta os .war no Tomcat standalone e confere se subiram
 │
 ├── agenda-backend/                 API REST (Java 8, Servlets, JDBC, MySQL 8)
 │   ├── README.md                   documentação completa do backend
@@ -237,7 +240,16 @@ de novo restaura os dados de exemplo.
 
 ### 5.4 Construir as duas aplicações
 
-Na raiz do repositório, com o Maven rodando sobre o JDK 8:
+O jeito mais simples é o script `build.sh`, que confere o JDK 8 e o Maven, roda o build e
+mostra os WARs gerados e o resultado dos testes:
+
+```bash
+./scripts/build.sh                  # backend + frontend, com testes
+./scripts/build.sh --skip-tests     # sem os testes JUnit
+./scripts/build.sh --only backend   # só uma aplicação (backend ou frontend)
+```
+
+Ele equivale a rodar, na raiz do repositório, com o Maven sobre o JDK 8:
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean package
@@ -255,7 +267,23 @@ Resultado: `agenda-backend/target/agenda-backend.war` e `agenda-frontend/target/
 
 ### 5.5 Implantar
 
-**Opção A: Tomcat standalone**
+**Opção A: Tomcat standalone com o script `deploy.sh`**
+
+```bash
+./scripts/deploy.sh                  # para o Tomcat, copia os dois WARs, inicia e testa
+./scripts/deploy.sh --build          # roda o build.sh antes
+./scripts/deploy.sh --only frontend  # implanta só uma aplicação
+./scripts/deploy.sh --no-restart     # copia com o Tomcat ligado (hot deploy)
+./scripts/deploy.sh --stop           # só para o Tomcat
+```
+
+O script remove os WARs e as pastas antigas antes de copiar, inicia o Tomcat com o JDK 8 e
+espera até `/agenda-backend/api/health` responder `UP` e `/agenda-frontend/` abrir. Se algo
+falhar, mostra as últimas linhas do `catalina.out`. Ele recusa a implantação se a porta 8080
+estiver ocupada pelo Tomcat do Eclipse. Caminhos diferentes podem ser informados por variáveis:
+`TOMCAT_HOME`, `JDK8_HOME`, `PORTA` e `TIMEOUT`.
+
+Os comandos manuais equivalentes são:
 
 ```bash
 sudo cp agenda-backend/target/agenda-backend.war   /opt/apache-tomcat-8.5.100/webapps/
